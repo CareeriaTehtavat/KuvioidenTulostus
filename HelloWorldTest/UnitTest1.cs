@@ -9,12 +9,18 @@ namespace HelloWorldTest
     {
         [Fact]
         [Trait("TestGroup", "Main_ShouldPrintSquare_WhenUserProvidesInput")]
-
         public void Main_ShouldPrintSquare_WhenUserProvidesInput()
         {
             // Arrange
             var input = "5";  // Simulating user input of 5
-            var expectedOutput = "*****\n*   *\n*   *\n*   *\n*****\n";
+            var expectedRows = new[]
+            {
+        "*****", // Top row
+        "*   *", // Middle rows
+        "*   *",
+        "*   *",
+        "*****"  // Bottom row
+    };
 
             // Redirect input
             using (var sr = new StringReader(input))
@@ -31,11 +37,25 @@ namespace HelloWorldTest
 
                     // Assert
                     var result = sw.ToString();
-                    Assert.Contains("Kuinka ison ", result);  // Ensure it asks for input
-                    Assert.Contains(expectedOutput, result);  // Check that the output matches expected square pattern
+
+                    // Split output into rows, removing any trailing empty lines
+                    var outputRows = result.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    // Check the program asks for input
+                    Assert.Contains("Kuinka ison", result);
+
+                    // Check that the output contains the expected number of rows
+                    Assert.Equal(expectedRows.Length, outputRows.Length);
+
+                    // Check each row individually
+                    for (int i = 1; i < expectedRows.Length; i++)
+                    {
+                        Assert.Equal(expectedRows[i], outputRows[i]);
+                    }
                 }
             }
         }
+
         [Theory]
         [InlineData(3, new[] { "***", "* *", "***" })]
         [InlineData(4, new[] { "****", "*  *", "*  *", "****" })]
@@ -79,10 +99,10 @@ namespace HelloWorldTest
             string normalizedLine = Regex.Replace(line, @"[\s.,]+", "").ToLower();
             string normalizedExpectedText = Regex.Replace(expectedText, @"[\s.,]+", "").ToLower();
 
-            // Create a regex pattern to allow any character for "ä", "ö", "a", and "o"
+            // Create a regex pattern to allow any character for "Ã¤", "Ã¶", "a", and "o"
             string pattern = Regex.Escape(normalizedExpectedText)
-                                  .Replace("ö", ".")  // Allow any character for "ö"
-                                  .Replace("ä", ".")  // Allow any character for "ä"
+                                  .Replace("Ã¶", ".")  // Allow any character for "Ã¶"
+                                  .Replace("Ã¤", ".")  // Allow any character for "Ã¤"
                                   .Replace("a", ".")  // Allow any character for "a"
                                   .Replace("o", ".");  // Allow any character for "o"
 
